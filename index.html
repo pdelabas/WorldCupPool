@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>2026 World Cup Bracket Predictor</title>
     <style>
+        <script src="https://cloudflare.com"></script>
         :root {
             --bg-color: #0f0f12;
             --card-bg: #1a1a1f;
@@ -176,8 +177,9 @@
         <div class="third-place-grid" id="third-place-pool"></div>
     </div>
 
-    <div class="action-container">
+        <div class="action-container">
         <button class="btn btn-submit" id="submit-btn" onclick="submitBracket()">Submit & Lock Predictions</button>
+        <button class="btn" id="pdf-btn" style="background-color: #555; color: white; margin-left: 10px;" onclick="exportToPDF()">Download as PDF</button>
     </div>
 
     <!-- Built-in Master Leaderboard Dashboard (Visible to You) -->
@@ -437,6 +439,37 @@
         });
     }
 </script>
+        function exportToPDF() {
+        const nameVal = document.getElementById('user-name').value.trim() || "my";
+        
+        // Target the main content areas to print
+        const elementsToPrint = document.createElement('div');
+        elementsToPrint.style.padding = "20px";
+        elementsToPrint.style.backgroundColor = "#0f0f12";
+        elementsToPrint.style.color = "#ffffff";
+        
+        // Clone the content elements so we don't disrupt the user's active screen layout
+        elementsToPrint.innerHTML = `
+            <h1 style="color:white; text-align:center;">2026 World Cup Bracket</h1>
+            <p style="text-align:center; color:#9ea2ae;">Predictions submitted by: <b>${nameVal}</b></p>
+            <hr style="border-color:#2c2d35; margin-bottom:20px;">
+            ${document.getElementById('all-groups').innerHTML}
+            <br><hr style="border-color:#2c2d35; margin-bottom:20px;">
+            <h3 style="color:#3b82f6;">Selected Wildcard Third-Place Teams</h3>
+            ${document.getElementById('third-place-pool').innerHTML}
+        `;
+
+        const options = {
+            margin:       10,
+            filename:     `${nameVal.toLowerCase().replace(/[^a-z0-9]/g, '_')}_bracket.pdf`,
+            image:        { type: 'jpeg', quality: 0.98 },
+            html2canvas:  { scale: 2, useCORS: true, backgroundColor: '#0f0f12' },
+            jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        };
+
+        // Execute automated document export conversion pipeline
+        html2pdf().set(options).from(elementsToPrint).save();
+    }
 </body>
 </html>
 
