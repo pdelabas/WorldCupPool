@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2026 World Cup Bracket Predictor</title>
+    <style>
+        :root {
+            --bg-color: #0f0f12;
+            --card-bg: #1a1a1f;
+            --text-color: #ffffff;
+            --text-secondary: #9ea2ae;
+            --border-color: #2c2d35;
+            --accent-blue: #3b82f6;
+            --accent-green: #10b981;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1 { margin-bottom: 5px; font-size: 28px; text-align: center; }
+        .subtitle { color: var(--text-secondary); margin-bottom: 25px; text-align: center; font-size: 14px; }
+
+        .name-container {
+            width: 100%;
+            max-width: 400px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .name-input {
+            width: 100%;
+            padding: 14px;
+            background-color: #000000;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            color: white;
+            font-size: 16px;
+            box-sizing: border-box;
+            text-align: center;
+            transition: border-color 0.2s;
+        }
+
+        .name-input:focus {
+            border-color: var(--accent-blue);
+            outline: none;
+        }
+
+        .groups-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 20px;
+            width: 100%;
+            max-width: 1100px;
+        }
+
+        .group-container {
+            background-color: #000000;
+            padding: 16px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            border: 1px solid var(--border-color);
+        }
+
+        .group-header {
+            font-size: 16px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 12px;
+            color: var(--accent-blue);
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 8px;
+        }
+
+        .rank-list { display: flex; flex-direction: column; gap: 8px; }
+
+        .rank-item {
+            display: flex;
+            align-items: center;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 10px 12px;
+            cursor: grab;
+            user-select: none;
+        }
+
+        .rank-item.dragging { opacity: 0.4; border-color: var(--accent-blue); }
+        .rank-badge { font-size: 14px; font-weight: bold; width: 35px; color: var(--text-secondary); }
+        .country-info { flex-grow: 1; display: flex; align-items: center; gap: 10px; }
+        .country-flag { font-size: 20px; }
+        .country-name { font-size: 14px; font-weight: 500; }
+        .drag-handle { display: flex; flex-direction: column; gap: 2.5px; }
+        .drag-handle span { width: 14px; height: 2px; background-color: var(--text-secondary); border-radius: 1px; }
+
+        .third-place-section {
+            width: 100%;
+            max-width: 1100px;
+            background-color: #000000;
+            margin-top: 40px;
+            padding: 24px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 6px 18px rgba(0,0,0,0.4);
+        }
+
+        .third-place-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; margin-top: 15px; }
+
+        .third-team-card {
+            display: flex;
+            align-items: center;
+            background-color: var(--card-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            padding: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .third-team-card:hover { border-color: var(--accent-blue); }
+        .third-team-card.selected { border-color: var(--accent-green); background-color: rgba(16, 185, 129, 0.1); }
+        .checkbox-indicator { width: 18px; height: 18px; border: 2px solid var(--text-secondary); border-radius: 4px; margin-right: 12px; display: flex; align-items: center; justify-content: center; }
+        .third-team-card.selected .checkbox-indicator { background-color: var(--accent-green); border-color: var(--accent-green); color: white; }
+        .third-team-card.selected .checkbox-indicator::after { content: "✓"; }
+        .counter { font-weight: bold; color: var(--accent-blue); }
+
+        .action-container { margin-top: 30px; margin-bottom: 50px; }
+        .btn { padding: 14px 28px; font-size: 16px; font-weight: bold; border-radius: 8px; cursor: pointer; border: none; }
+        .btn-submit { background-color: var(--accent-blue); color: white; }
+        .btn-submit:hover { background-color: #2563eb; }
+        .btn-locked { background-color: var(--accent-green) !important; cursor: default; }
+
+        /* Admin Master Leaderboard Dashboard */
+        .admin-panel {
+            width: 100%;
+            max-width: 1100px;
+            margin-top: 60px;
+            border-top: 2px dashed var(--border-color);
+            padding-top: 40px;
+        }
+        .admin-card { background: #050507; padding: 24px; border-radius: 12px; border: 1px solid #ffaa0033; }
+        .viewer-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px; margin-top: 20px; }
+        .friend-submission-card { background: var(--card-bg); padding: 16px; border-radius: 8px; border: 1px solid var(--border-color); }
+        .friend-name { font-weight: bold; font-size: 16px; color: #ffaa00; border-bottom: 1px solid var(--border-color); padding-bottom: 6px; margin-bottom: 8px; }
+        .mini-row { font-size: 12px; margin: 4px 0; color: var(--text-secondary); }
+    </style>
+</head>
+<body>
+
+    <h1>2026 World Cup Bracket Predictor</h1>
+    <div class="subtitle">Drag items to rank groups 1st–4th. Then select the 8 best 3rd place teams.</div>
+
+    <!-- User Name Entry Field -->
+    <div class="name-container">
+        <input type="text" id="user-name" class="name-input" placeholder="Enter your full name to start..." required />
+    </div>
+
+    <div class="groups-grid" id="all-groups"></div>
+
+    <div class="third-place-section">
+        <div class="group-header" style="border:none; margin:0;">
+            Select 8 Best Third-Place Qualifiers (<span id="selected-count" class="counter">0</span>/8)
+        </div>
+        <div class="subtitle" style="text-align:left; margin-bottom:10px;">
+            The 12 teams highlighted below represent the current 3rd place ranks from your groups above.
+        </div>
+        <div class="third-place-grid" id="third-place-pool"></div>
+    </div>
+
+    <div class="action-container">
+        <button class="btn btn-submit" id="submit-btn" onclick="submitBracket()">Submit & Lock Predictions</button>
+    </div>
+
+    <!-- Built-in Master Leaderboard Dashboard (Visible to You) -->
+    <div class="admin-panel">
+        <div class="admin-card">
+            <h3 style="margin: 0 0 5px 0; color: #ffaa00;">🏆 Commissioner Dashboard</h3>
+            <p class="subtitle" style="text-align:left; margin-bottom:15px;">Upload your friends' submitted JSON files below to view all their predictions in one spot.</p>
+            <input type="file" id="import-json" multiple accept=".json" style="color: white;" onchange="loadFriendSubmissions(event)" />
+            <div class="viewer-grid" id="leaderboard-display"></div>
+        </div>
+    </div>
+
+<script>
+    const wcGroups = {
+        "Group A": [
+            { id: "MEX", name: "Mexico", flag: "🇲🇽" }, { id: "RSA", name: "South Africa", flag: "🇿🇦" },
+            { id: "KOR", name: "South Korea", flag: "🇰🇷" }, { id: "CZE", name: "Czechia", flag: "🇨🇿" }
+        ],
+        "Group B": [
+            { id: "CAN", name: "Canada", flag: "🇨🇦" }, { id: "BIH", name: "Bosnia and Herzegovina", flag: "🇧🇦" },
+            { id: "QAT", name: "Qatar", flag: "🇶🇦" }, { id: "SUI", name: "Switzerland", flag: "🇨🇭" }
+        ],
+        "Group C": [
+            { id: "BRA", name: "Brazil", flag: "🇧🇷" }, { id: "MAR", name: "Morocco", flag: "🇲🇦" },
+            { id: "HAI", name: "Haiti", flag: "🇭🇹" }, { id: "SCO", name: "Scotland", flag: "🏴󠁧󠁢󠁳󠁣󠁴󠁿" }
+        ],
+        "Group D": [
+            { id: "USA", name: "United States", flag: "🇺🇸" }, { id: "PAR", name: "Paraguay", flag: "🇵🇾" },
+            { id: "AUS", name: "Australia", flag: "🇦🇺" }, { id: "TUR", name: "Türkiye", flag: "🇹🇷" }
+        ],
+        "Group E": [
+            { id: "GER", name: "Germany", flag: "🇩🇪" }, { id: "CUR", name: "Curaçao", flag: "🇨🇼" },
+            { id: "CIV", name: "Ivory Coast", flag: "🇨🇮" }, { id: "ECU", name: "Ecuador", flag: "🇪🇨" }
+        ],
+        "Group F": [
+            { id: "NED", name: "Netherlands", flag: "🇳🇱" }, { id: "JPN", name: "Japan", flag: "🇯🇵" },
+            { id: "SWE", name: "Sweden", flag: "🇸🇪" }, { id: "TUN", name: "Tunisia", flag: "🇹🇳" }
+        ],
+        "Group G": [
+            { id: "BEL", name: "Belgium", flag: "🇧🇪" }, { id: "EGY", name: "Egypt", flag: "🇪🇬" },
+            { id: "IRN", name: "Iran", flag: "🇮🇷" }, { id: "NZL", name: "New Zealand", flag: "🇳🇿" }
+        ],
+        "Group H": [
+            { id: "ESP", name: "Spain", flag: "🇪🇸" }, { id: "CPV", name: "Cape Verde", flag: "🇨🇻" },
+            { id: "KSA", name: "Saudi Arabia", flag: "🇸🇦" }, { id: "URU", name: "Uruguay", flag: "🇺🇾" }
+        ],
+        "Group I": [       
+            { id: "FRA", name: "France", flag: "🇫🇷" }, { id: "SEN", name: "Senegal", flag: "🇸🇳" },
+            { id: "IRQ", name: "Iraq", flag: "🇮🇶" }, { id: "NOR", name: "Norway", flag: "🇳🇴" }
+        ],
+        "Group J": [
+            { id: "ARG", name: "Argentina", flag: "🇦🇷" }, { id: "ALG", name: "Algeria", flag: "🇩🇿" },
+            { id: "AUT", name: "Austria", flag: "🇦🇹" }, { id: "JOR", name: "Jordan", flag: "🇯🇴" }
+        ],
+        "Group K": [
+            { id: "POR", name: "Portugal", flag: "🇵🇹" }, { id: "COD", name: "DR Congo", flag: "🇨🇩" },
+            { id: "UZB", name: "Uzbekistan", flag: "🇺🇿" }, { id: "COL", name: "Colombia", flag: "🇨🇴" }
+        ],
+        "Group L": [
+            { id: "ENG", name: "England", flag: "🏴󠁧󠁢󠁥󠁮󠁧󠁿" }, { id: "CRO", name: "Croatia", flag: "🇭🇷" },
+            { id: "GHA", name: "Ghana", flag: "🇬🇭" }, { id: "PAN", name: "Panama", flag: "🇵🇦" }
+        ]
+    };
+
+    let selectedThirdPlaceIds = new Set();
+    let isLocked = false;
+
+    window.addEventListener('DOMContentLoaded', () => {
+        renderGroups();
+        updateThirdPlacePool();
+    });
+
+    function renderGroups() {
+        const grid = document.getElementById('all-groups');
+        grid.innerHTML = '';
+        Object.keys(wcGroups).forEach(groupName => {
+            const container = document.createElement('div');
+            container.className = 'group-container';
+            container.setAttribute('data-group', groupName);
+            container.innerHTML = `<div class="group-header">${groupName}</div>`;
+            const listElement = document.createElement('div');
+            listElement.className = 'rank-list';
+            wcGroups[groupName].forEach((team, index) => {
+                listElement.appendChild(createTeamRow(team, index));
+            });
+            listElement.addEventListener('dragover', handleDragOver);
+            container.appendChild(listElement);
+            grid.appendChild(container);
+        });
+    }
+
+    function createTeamRow(team, index) {
+        const suffixes = ["1st", "2nd", "3rd", "4th"];
+        const row = document.createElement('div');
+        row.className = 'rank-item';
+        row.setAttribute('draggable', 'true');
+        row.setAttribute('data-id', team.id);
+        row.setAttribute('data-name', team.name);
+        row.setAttribute('data-flag', team.flag);
+        row.innerHTML = `
+            <div class="rank-badge">${suffixes[index]}</div>
+            <div class="country-info">
+                <span class="country-flag">${team.flag}</span>
+                <span class="country-name">${team.name}</span>
+            </div>
+            <div class="drag-handle"><span></span><span></span><span></span></div>
+        `;
+        row.addEventListener('dragstart', () => { if (!isLocked) row.classList.add('dragging'); });
+        row.addEventListener('dragend', () => {
+            row.classList.remove('dragging');
+            updateAllGroupBadges();
+            updateThirdPlacePool();
+        });
+        return row;
+    }
+
+    function handleDragOver(e) {
+        e.preventDefault();
+        if (isLocked) return;
+        const draggingItem = document.querySelector('.dragging');
+        if (!draggingItem) return;
+        const containerList = e.currentTarget;
+        const siblings = [...containerList.querySelectorAll('.rank-item:not(.dragging)')];
+        let nextSibling = siblings.find(sibling => {
+            const box = sibling.getBoundingClientRect();
+            return e.clientY <= box.top + box.height / 2;
+        });
+        containerList.insertBefore(draggingItem, nextSibling);
+    }
+
+    function updateAllGroupBadges() {
+        const suffixes = ["1st", "2nd", "3rd", "4th"];
+        document.querySelectorAll('.rank-list').forEach(list => {
+            list.querySelectorAll('.rank-badge').forEach((badge, index) => { badge.innerText = suffixes[index]; });
+        });
+    }
+
+    function updateThirdPlacePool() {
+        const poolContainer = document.getElementById('third-place-pool');
+        const groups = document.querySelectorAll('.group-container');
+        let currentThirdPlaceTeams = [];
+
+        groups.forEach(group => {
+            const groupName = group.getAttribute('data-group');
+            const rows = group.querySelectorAll('.rank-item');
+            if (rows && rows.length >= 3) {
+                const thirdRow = rows[2]; // Target the third element in the row list
+                currentThirdPlaceTeams.push({
+                    id: thirdRow.getAttribute('data-id'),
+                    name: thirdRow.getAttribute('data-name'),
+                    flag: thirdRow.getAttribute('data-flag'),
+                    originGroup: groupName
+                });
+            }
+        });
+
+        poolContainer.innerHTML = '';
+        const currentIds = currentThirdPlaceTeams.map(t => t.id);
+        selectedThirdPlaceIds.forEach(id => { if (!currentIds.includes(id)) selectedThirdPlaceIds.delete(id); });
+
+        currentThirdPlaceTeams.forEach(team => {
+            const card = document.createElement('div');
+            card.className = `third-team-card ${selectedThirdPlaceIds.has(team.id) ? 'selected' : ''}`;
+            card.innerHTML = `
+                <div class="checkbox-indicator"></div>
+                <div class="country-info">
+                    <span class="country-flag">${team.flag}</span>
+                    <div>
+                        <span class="country-name" style="display:block;">${team.name}</span>
+                        <small style="color:var(--text-secondary); font-size:11px;">From ${team.originGroup}</small>
+                    </div>
+                </div>
+            `;
+            card.onclick = () => {
+                if (isLocked) return;
+                if (selectedThirdPlaceIds.has(team.id)) { selectedThirdPlaceIds.delete(team.id); } 
+                else {
+                    if (selectedThirdPlaceIds.size >= 8) { alert("You can only select exactly 8 third-place teams!"); return; }
+                    selectedThirdPlaceIds.add(team.id);
+                }
+                document.getElementById('selected-count').innerText = selectedThirdPlaceIds.size;
+                updateThirdPlacePool();
+            };
+            poolContainer.appendChild(card);
+        });
+        document.getElementById('selected-count').innerText = selectedThirdPlaceIds.size;
+    }
+
+    function submitBracket() {
+        const nameVal = document.getElementById('user-name').value.trim();
+        if (!nameVal) { alert("Please enter your name at the top before submitting your bracket!"); return; }
+        if (selectedThirdPlaceIds.size !== 8) { alert(`Please select exactly 8 third-place teams before locking.`); return; }
+
+        isLocked = true;
+        document.getElementById('user-name').disabled = true;
+        document.querySelectorAll('.rank-item').forEach(item => { item.setAttribute('draggable', 'false'); item.style.cursor = 'default'; });
+
+        const btn = document.getElementById('submit-btn');
+        btn.innerText = "🔒 Bracket Locked & Submitted!";
+        btn.classList.add('btn-locked');
+
+        const finalPredictions = {
+            participantName: nameVal,
+            timestamp: new Date().toISOString(),
+            groupStandings: {},
+            wildcardThirdPlaceQualifiers: Array.from(selectedThirdPlaceIds)
+        };
+
+        document.querySelectorAll('.group-container').forEach(group => {
+            const groupName = group.getAttribute('data-group');
+            finalPredictions.groupStandings[groupName] = [];
+            group.querySelectorAll('.rank-item').forEach(row => {
+                finalPredictions.groupStandings[groupName].push(row.getAttribute('data-name'));
+            });
+        });
+
+        const safeFileName = nameVal.toLowerCase().replace(/[^a-z0-9]/g, '_') + "_wc_bracket.json";
+        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(finalPredictions, null, 2));
+        const downloadAnchor = document.createElement('a');
+        downloadAnchor.setAttribute("href", dataStr);
+        downloadAnchor.setAttribute("download", safeFileName);
+        document.body.appendChild(downloadAnchor);
+        downloadAnchor.click();
+        downloadAnchor.remove();
+    }
+
+    function loadFriendSubmissions(event) {
+        const files = event.target.files;
+        const display = document.getElementById('leaderboard-display');
+        display.innerHTML = '';
+
+        Array.from(files).forEach(file => {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    const card = document.createElement('div');
+                    card.className = 'friend-submission-card';
+                    
+                    let wildcardsStr = data.wildcardThirdPlaceQualifiers.join(', ');
+                    let groupSneakPeek = "";
+                    Object.keys(data.groupStandings).slice(0, 3).forEach(g => {
+                        groupSneakPeek += `<div class="mini-row"><b>${g}:</b> 1st: ${data.groupStandings[g][0]}</div>`;
+                    });
+
+                    card.innerHTML = `
+                        <div class="friend-name">${data.participantName || "Anonymous Friend"}</div>
+                        ${groupSneakPeek}
+                        <div class="mini-row" style="margin-top:8px; border-top:1px solid #333; padding-top:4px;">
+                            <b style="color:var(--accent-green)">Wildcards:</b> <span style="font-size:11px;">${wildcardsStr}</span>
+                        </div>
+                    `;
+                    display.appendChild(card);
+                } catch (err) { console.error("Error reading entry file:", err); }
+            };
+            reader.readAsText(file);
+        });
+    }
+</script>
+</body>
+</html>
+
