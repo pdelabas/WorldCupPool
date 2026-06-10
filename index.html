@@ -313,7 +313,7 @@
         });
     }
 
-    function updateThirdPlacePool() {
+        function updateThirdPlacePool() {
         const poolContainer = document.getElementById('third-place-pool');
         const groups = document.querySelectorAll('.group-container');
         let currentThirdPlaceTeams = [];
@@ -321,8 +321,9 @@
         groups.forEach(group => {
             const groupName = group.getAttribute('data-group');
             const rows = group.querySelectorAll('.rank-item');
+            // FIX: Access index [2] safely to query the 3rd element card down in each array list
             if (rows && rows.length >= 3) {
-                const thirdRow = rows[2]; // CORRECT VALUE POSITION STRATEGY
+                const thirdRow = rows[2]; 
                 currentThirdPlaceTeams.push({
                     id: thirdRow.getAttribute('data-id'),
                     name: thirdRow.getAttribute('data-name'),
@@ -419,7 +420,7 @@
                 ${document.getElementById('all-groups').innerHTML}
             </div>
             <div style="page-break-before: always; margin-top:40px; padding-top:20px; border-top:1px solid #2c2d35;">
-                               <h2 style="color:#3b82f6; margin-bottom:5px;">Selected Wildcard Third-Place Teams</h2>
+                <h2 style="color:#3b82f6; margin-bottom:5px;">Selected Wildcard Third-Place Teams</h2>
                 <p style="color:#9ea2ae; font-size:13px; margin-top:0; margin-bottom:15px;">The 8 highest ranked 3rd place selections advancing to the Knockout Round.</p>
                 <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:12px;">
                     ${document.getElementById('third-place-pool').innerHTML}
@@ -431,7 +432,7 @@
         elementsToPrint.querySelectorAll('.group-container, .third-team-card').forEach(el => {
             el.style.border = "1px solid #2c2d35";
             el.style.backgroundColor = "#1a1a1f";
-            el.style.removeAttribute ? el.style.removeAttribute('color') : el.style.color = "#ffffff";
+            el.style.color = "#ffffff";
             el.style.marginBottom = "10px";
             el.style.padding = "10px";
             el.style.borderRadius = "8px";
@@ -492,3 +493,4 @@
 </script>
 </body>
 </html>
+
