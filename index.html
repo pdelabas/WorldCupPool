@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>2026 World Cup Bracket Predictor</title>
-    <!-- Automated PDF Document Rendering Engine Link -->
+    <!-- Fully Bundled Client-Side PDF Generation Engine Package Link -->
     <script src="https://cloudflare.com"></script>
     <style>
         :root {
@@ -94,14 +94,14 @@
             padding: 10px 12px;
             cursor: grab;
             user-select: none;
-            color: var(--text-color) !important;
+            color: #ffffff !important;
         }
 
         .rank-item.dragging { opacity: 0.4; border-color: var(--accent-blue); }
         .rank-badge { font-size: 14px; font-weight: bold; width: 35px; color: var(--text-secondary); }
-        .country-info { flex-grow: 1; display: flex; align-items: center; gap: 10px; color: var(--text-color) !important; }
+        .country-info { flex-grow: 1; display: flex; align-items: center; gap: 10px; color: #ffffff !important; }
         .country-flag { font-size: 20px; }
-        .country-name { font-size: 14px; font-weight: 500; color: var(--text-color) !important; }
+        .country-name { font-size: 14px; font-weight: 500; color: #ffffff !important; }
         .drag-handle { display: flex; flex-direction: column; gap: 2.5px; }
         .drag-handle span { width: 14px; height: 2px; background-color: var(--text-secondary); border-radius: 1px; }
 
@@ -127,7 +127,7 @@
             padding: 12px;
             cursor: pointer;
             transition: all 0.2s;
-            color: var(--text-color) !important;
+            color: #ffffff !important;
         }
 
         .third-team-card:hover { border-color: var(--accent-blue); }
@@ -137,7 +137,7 @@
         .third-team-card.selected .checkbox-indicator::after { content: "✓"; }
         .counter { font-weight: bold; color: var(--accent-blue); }
 
-        .action-container { margin-top: 30px; margin-bottom: 50px; display: flex; justify-content: center; gap: 12px; }
+        .action-container { margin-top: 30px; margin-bottom: 50px; display: flex; justify-content: center; gap: 15px; }
         .btn { padding: 14px 28px; font-size: 16px; font-weight: bold; border-radius: 8px; cursor: pointer; border: none; transition: background 0.2s; }
         .btn-submit { background-color: var(--accent-blue); color: white; }
         .btn-submit:hover { background-color: #2563eb; }
@@ -214,7 +214,7 @@
             { id: "NED", name: "Netherlands", flag: "🇳🇱" }, { id: "JPN", name: "Japan", flag: "🇯🇵" },
             { id: "SWE", name: "Sweden", flag: "🇸🇪" }, { id: "TUN", name: "Tunisia", flag: "🇹🇳" }
         ],
-         "Group G": [
+        "Group G": [
             { id: "BEL", name: "Belgium", flag: "🇧🇪" }, { id: "EGY", name: "Egypt", flag: "🇪🇬" },
             { id: "IRN", name: "Iran", flag: "🇮🇷" }, { id: "NZL", name: "New Zealand", flag: "🇳🇿" }
         ],
@@ -231,7 +231,7 @@
             { id: "AUT", name: "Austria", flag: "🇦🇹" }, { id: "JOR", name: "Jordan", flag: "🇯🇴" }
         ],
         "Group K": [
-            { id: "PORT", name: "Portugal", flag: "🇵🇹" }, { id: "COD", name: "DR Congo", flag: "🇨🇩" },
+            { id: "POR", name: "Portugal", flag: "🇵🇹" }, { id: "COD", name: "DR Congo", flag: "🇨🇩" },
             { id: "UZB", name: "Uzbekistan", flag: "🇺🇿" }, { id: "COL", name: "Colombia", flag: "🇨🇴" }
         ],
         "Group L": [
@@ -313,7 +313,7 @@
         });
     }
 
-        function updateThirdPlacePool() {
+    function updateThirdPlacePool() {
         const poolContainer = document.getElementById('third-place-pool');
         const groups = document.querySelectorAll('.group-container');
         let currentThirdPlaceTeams = [];
@@ -321,7 +321,7 @@
         groups.forEach(group => {
             const groupName = group.getAttribute('data-group');
             const rows = group.querySelectorAll('.rank-item');
-            // FIX: Access index [2] safely to query the 3rd element card down in each array list
+            // FIX: Array element index identifier [2] explicitly targets the 3rd row row nodes
             if (rows && rows.length >= 3) {
                 const thirdRow = rows[2]; 
                 currentThirdPlaceTeams.push({
@@ -419,7 +419,7 @@
             <div style="display:grid; grid-template-columns: repeat(2, 1fr); gap:20px;">
                 ${document.getElementById('all-groups').innerHTML}
             </div>
-            <div style="page-break-before: always; margin-top:40px; padding-top:20px; border-top:1px solid #2c2d35;">
+                <div style="page-break-before: always; margin-top:40px; padding-top:20px; border-top:1px solid #2c2d35;">
                 <h2 style="color:#3b82f6; margin-bottom:5px;">Selected Wildcard Third-Place Teams</h2>
                 <p style="color:#9ea2ae; font-size:13px; margin-top:0; margin-bottom:15px;">The 8 highest ranked 3rd place selections advancing to the Knockout Round.</p>
                 <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:12px;">
@@ -433,6 +433,8 @@
             el.style.border = "1px solid #2c2d35";
             el.style.backgroundColor = "#1a1a1f";
             el.style.color = "#ffffff";
+            el.style.removeAttribute ? el.style.removeAttribute('color') : el.style.color = "#ffffff";
+            el.style.removeAttribute ? el.style.removeAttribute('background-color') : el.style.backgroundColor = "#1a1a1f";
             el.style.marginBottom = "10px";
             el.style.padding = "10px";
             el.style.borderRadius = "8px";
@@ -493,4 +495,5 @@
 </script>
 </body>
 </html>
+
 
